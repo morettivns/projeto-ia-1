@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import cv2
 import webbrowser
+import sys
 from pathlib import Path
 from PIL import Image, ImageTk
 from ultralytics import YOLO
@@ -17,7 +18,13 @@ modelo_caminho = Path(__file__).parent / "complementos" / "modelo_customizado.pt
 modelo = YOLO(modelo_caminho)
 
 def abrir_linkedin(event=None):
-    webbrowser.open("https://www.linkedin.com/in/vinicius-moretti-694b09279/")
+    webbrowser.open("https://www.linkedin.com/in/morettivns/")
+
+def fechar():
+    sys.exit() #Quando eu fechava pelo "X" a janela secundária o programa seguia rodando em segundo plano, acrescentei isso apenas para resolver esse problema.
+
+def icone(nova_janela):
+    nova_janela.iconbitmap(logo_ico_caminho) #Resolve o bug do ícone nas janelas secundárias.
 
 def voltar(janela_atual, janela_anterior): #Fecha o video ou a câmera e volta para a janela anterior.
     global video, camera, rodando
@@ -37,14 +44,12 @@ def voltar(janela_atual, janela_anterior): #Fecha o video ou a câmera e volta p
 Janela do video:
 '''
 def janela_video():
-    def icone(): #Para resolver o problema do icone não aparecer na segunda janela.
-        nova_janela.iconbitmap(logo_ico_caminho)
 
     janela.withdraw()
     nova_janela = ctk.CTkToplevel(janela)
     
     nova_janela.title("Projeto de Inteligência Artificial - Video")
-    nova_janela.after(200, icone)
+    nova_janela.after(200, lambda: icone(nova_janela))
     nova_janela.geometry(f"1200x720+{(janela.winfo_screenwidth() - 1200) // 2}+{(janela.winfo_screenheight() - 720) // 2}")
     nova_janela.resizable(False, False)
 
@@ -57,6 +62,7 @@ def janela_video():
     botao_fechar = ctk.CTkButton(nova_janela, text= "Fechar video", command= lambda: voltar(nova_janela, janela), fg_color= "#e1306c", hover_color= "#833ab4")
     botao_fechar.pack(padx= 10, pady= 10)
 
+    nova_janela.protocol("WM_DELETE_WINDOW", fechar)
     rodar_video(label_Video)
 
 def rodar_video(label_Video):
@@ -83,14 +89,12 @@ def rodar_video(label_Video):
 Janela da câmera:
 '''
 def janela_camera():
-    def icone(): #Para resolver o problema do icone não aparecer na segunda janela.
-        nova_janela.iconbitmap(logo_ico_caminho)
 
     janela.withdraw()
     nova_janela = ctk.CTkToplevel(janela)
 
     nova_janela.title("Projeto de Inteligência Artificial - Câmera")
-    nova_janela.after(200, icone)
+    nova_janela.after(200, lambda: icone(nova_janela))
     nova_janela.geometry(f"1200x720+{(janela.winfo_screenwidth() - 1200) // 2}+{(janela.winfo_screenheight() - 720) // 2}")
     nova_janela.resizable(False, False)
 
@@ -109,6 +113,7 @@ def janela_camera():
     botao_fechar = ctk.CTkButton(frame_baixo, text= "Fechar câmera", command= lambda: voltar(nova_janela, janela), fg_color= "#e1306c", hover_color= "#833ab4")
     botao_fechar.pack()
     
+    nova_janela.protocol("WM_DELETE_WINDOW", fechar)
     iniciar_camera(label_Camera)
 
 def iniciar_camera(label_camera):
@@ -149,8 +154,6 @@ Função principal
 video = None
 camera = None
 rodando = False
-
-#TODO: ao fechar uma das janelas acima fechar a aplicação. 
 
 janela = ctk.CTk()
 janela.geometry(f"500x400+{(janela.winfo_screenwidth() - 500) // 2}+{(janela.winfo_screenheight() - 400) // 2}")
